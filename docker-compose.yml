@@ -1,0 +1,36 @@
+version: '3.3'
+
+
+# define containers that should be running
+services:
+  # step 1: define database
+  mongo-database:
+    image: mongo:3.2
+    # volume to attach to this container
+    volumes:
+      - mongo-data:/data/db
+    # what networks to attach to container
+    networks:
+      - raddit-network
+
+  # step 2: define app server
+  raddit-app:
+    # path to Dockerfile to build an image (in this case, same folder)
+    build: .
+    environment:
+      - DATABASE_HOST=mongo-database
+    ports:
+      - 9292:9292
+    networks:
+      - raddit-network
+    # specify dependency so that app server starts after database is started
+    depends_on:
+      - mongo-database
+
+# define volumes
+volumes:
+  mongo-data:
+
+# define networks
+networks:
+  raddit-network:
